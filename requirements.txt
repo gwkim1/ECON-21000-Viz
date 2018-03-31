@@ -1,0 +1,5 @@
+numpy==1.7
+matplotlib==2.1
+ipywidgets==7.2
+mpl_toolkits==2.2
+math==9.2
