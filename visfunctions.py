@@ -570,12 +570,12 @@ def SE(option):
         model = lm.OLS(yy, xx)
         results = model.fit()
         results2 = model.fit(cov_type='HC0')
-        mygroups = [0]*(N/3) + [1]*(N/3) + [2]*(N/3)
+        mygroups = [0]*(int(N/3)) + [1]*(int(N/3)) + [2]*(int(N/3))
         results3 = model.fit(cov_type='cluster', cov_kwds={'groups': mygroups})
         
     cov = np.zeros((N, N))
     for i in range(N):
-        cov[i][i] = (i+1)/(N/3.0)
+        cov[i][i] = (i+1)/(int(N/3))
     Yhetero = np.random.multivariate_normal(np.zeros(N), cov) #increasing variance by index
 
     xx = sorted(np.random.normal(0, 1, N))
@@ -606,16 +606,16 @@ def SE(option):
         model = lm.OLS(yy, xx)
         results = model.fit()
         results2 = model.fit(cov_type='HC0')
-        mygroups = [0]*(N/3) + [1]*(N/3) + [2]*(N/3)
+        mygroups = [0]*(int(N/3)) + [1]*(int(N/3)) + [2]*(int(N/3))
         results3 = model.fit(cov_type='cluster', cov_kwds={'groups': mygroups})
 
     xx = np.random.normal(0, 1, N)
-    eps1 = np.random.normal(0, np.random.rand()*1, N/3)
-    eps2 = np.random.normal(0, np.random.rand()*3, N/3)
-    eps3 = np.random.normal(0, np.random.rand()*5, N/3)
-    Y1 = [alpha + beta*x + e for x, e in zip(xx[:N/3], eps1)]
-    Y2 = [alpha + beta*x + e for x, e in zip(xx[N/3:N*2/3], eps2)]        
-    Y3 = [alpha + beta*x + e for x, e in zip(xx[:N*2/3], eps3)]
+    eps1 = np.random.normal(0, np.random.rand()*1, int(N/3))
+    eps2 = np.random.normal(0, np.random.rand()*3, int(N/3))
+    eps3 = np.random.normal(0, np.random.rand()*5, int(N/3))
+    Y1 = [alpha + beta*x + e for x, e in zip(xx[:int(N/3)], eps1)]
+    Y2 = [alpha + beta*x + e for x, e in zip(xx[int(N/3):int(N*2/3)], eps2)]        
+    Y3 = [alpha + beta*x + e for x, e in zip(xx[:int(N*2/3)], eps3)]
     yy = np.hstack((Y1, Y2, Y3))
     regr.fit(np.array(xx).reshape(N, 1), yy.reshape(N, 1))
     yyy = [regr.intercept_ + x * regr.coef_[0] for x in xx]  
@@ -626,15 +626,15 @@ def SE(option):
 
     middleterm = 0
     for i in range(3):
-        middleterm += np.vdot(xx[N/3*i:N/3*(i+1)], residuals[N/3*i:N/3*(i+1)])**2
+        middleterm += np.vdot(xx[int(N/3)*i:int(N/3)*(i+1)], residuals[int(N/3)*i:int(N/3)*(i+1)])**2
 
     betacluster = regr.coef_[0][0]
     secluster = 1 / np.dot(xx, xx) * middleterm * 1 / np.dot(xx, xx)
 
     if option == "Clustered":
-        ax1.plot(xx[:N/3], Y1, 'bo', label='cluster1')
-        ax1.plot(xx[N/3:N*2/3], Y2, 'ro', label='cluster2')
-        ax1.plot(xx[N*2/3:], Y3, 'go', label='cluster3')
+        ax1.plot(xx[:int(N/3)], Y1, 'bo', label='cluster1')
+        ax1.plot(xx[int(N/3):int(N*2/3)], Y2, 'ro', label='cluster2')
+        ax1.plot(xx[int(N*2/3):], Y3, 'go', label='cluster3')
         ax1.plot(xx, yyy, 'C1', label='fitted line')
         ax1.set_xlabel('X')
         ax1.set_ylabel('Y')
@@ -656,7 +656,7 @@ def SE(option):
         model = lm.OLS(yy, xx)
         results = model.fit()
         results2 = model.fit(cov_type='HC0')
-        mygroups = [0]*(N/3) + [1]*(N/3) + [2]*(N/3)
+        mygroups = [0]*(int(N/3)) + [1]*(int(N/3)) + [2]*(int(N/3))
         results3 = model.fit(cov_type='cluster', cov_kwds={'groups': mygroups})      
 
     print ("estimated betahat (same for all 3 models): " + str(results.params[1]))
