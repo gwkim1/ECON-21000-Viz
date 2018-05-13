@@ -237,61 +237,53 @@ def IV(covXZ=0.7):
     regr = linear_model.LinearRegression()
     xx = np.linspace(-3, 3, 300)
     
-    print ("One method of estimating the true beta with the Instrumental Variable Z is to first fit X~Z to get Xhat, " + \
-           "and then fit Y~Xhat to get Yhat. The resulting slope would correclty estimate the true beta=2")
     
+    # new addition
+    print ('While fitting on Y~X would produce the best fit for the scatterplot, the line misses the true beta=2, ' + \
+          'as variable Z that is correlated with X is ignored')
+    regr.fit(X.reshape(N, 1), Y.reshape(N, 1))
+    Yhat = regr.predict(X.reshape(N, 1))
+    xy = [regr.intercept_ + x * regr.coef_[0] for x in xx] 
+    truexy = [alpha + x * beta for x in xx] 
+    plt.scatter(X, Y)
+    plt.plot(xx, xy, 'b', label='slope: ' + str(round(regr.coef_[0][0], 3)))
+    plt.plot(xx, truexy, 'r', label='true slope beta=2')
+    plt.title('fit Y against X, ignoring Z')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.xlim((-3.5, 3.5))
+    plt.legend()
+    plt.show()
+    
+    print ("One method of estimating the true beta with the Instrumental Variable Z is to first fit X~Z to get Xhat, " + \
+           "and then fit Y~Xhat to get Yhat. The resulting slope would correctly estimate the true beta=2")
+    
+    f, axarr = plt.subplots(1, 2, figsize=(18,6), sharey=True)
+
     regr.fit(Z.reshape(N, 1), X.reshape(N, 1))
     Xhat = regr.predict(Z.reshape(N, 1))
     zx = [regr.intercept_ + x * regr.coef_[0] for x in xx] 
     ZXbeta = regr.coef_[0][0]
-    plt.scatter(Z, X)
-    plt.plot(xx, zx, 'C1', label='slope: ' + str(round(regr.coef_[0][0], 3)))
-    plt.xlabel("Z")
-    plt.ylabel("X")    
-    plt.title("stage 1: fit X against Z")
-    plt.legend()
-    plt.show()    
+    axarr[0].scatter(Z, X)
+    axarr[0].plot(xx, zx, 'C1', label='slope: ' + str(round(regr.coef_[0][0], 3)))
+    axarr[0].set_xlabel("Z")
+    axarr[0].set_ylabel("X")    
+    axarr[0].set_title("stage 1: fit X against Z")
+    axarr[0].legend()
+    #plt.show()    
     
     regr.fit(Xhat.reshape(N, 1), Y.reshape(N, 1))
     Yhat = regr.predict(Xhat.reshape(N, 1))
     yx = [regr.intercept_ + x * regr.coef_[0] for x in xx] 
-    plt.scatter(Xhat, Y)
-    plt.plot(xx, yx, 'C1', label='slope: ' + str(round(regr.coef_[0][0], 3)))
-    plt.xlabel("X")
-    plt.ylabel("Y")    
-    plt.title("stage 2: fit Y against Xhat from stage 1")
-    plt.legend()
+    axarr[1].scatter(Xhat, Y)
+    axarr[1].plot(xx, yx, 'C1', label='slope: ' + str(round(regr.coef_[0][0], 3)))
+    axarr[1].plot(xx, truexy, 'r', label='true slope beta=2')
+    axarr[1].set_xlabel("Xhat")
+    axarr[1].set_ylabel("Y")    
+    axarr[1].set_title("stage 2: fit Y against Xhat from stage 1")
+    axarr[1].legend()
     plt.show()        
     print ("Observe that the resulting fitted line from stage 2 closely estimates the true beta=2.\n")
-    print ("Another method is to fit X~Z to get Xhat, fit Y~Z to get Yhat, and to calculate the ratio " + \
-           "of betahat from Y~Z / betahat from X~Z.")
-    
-    regr.fit(Z.reshape(N, 1), Y.reshape(N, 1))
-    ZYbeta = regr.coef_[0][0]
-    plt.scatter(Z, Y)
-    yx2 = [regr.intercept_ + x * regr.coef_[0] for x in xx] 
-    plt.plot(xx, yx, 'C1', label='slope: ' + str(round(regr.coef_[0][0], 3)))
-    plt.xlabel("X")
-    plt.ylabel("Y")    
-    plt.title("stage 3: fit Y against Z")
-    plt.legend()
-    plt.show()       
-    print ("Note that the slope from stage 3/stage 1: " + str(ZYbeta) + " + " + str(ZXbeta) + " = " + str(ZYbeta / ZXbeta) +\
-          " closely estimates the true beta=2 as well.\n")
-    
-    print ("The final plot below shows that taking the Instrumental Variable Z into account correctly estimates " + \
-           "the true beta, while simply fitting Y~X does not.")
-    
-    
-    plt.plot(X, Y, 'bo', label="without Z")
-    plt.plot(Xhat, Yhat, 'ro', label="with Z")
-    
-    xx = np.linspace(-3, 3, 100)
-    yy = [alpha + beta*x for x in xx]
-    plt.plot(xx, yy, 'C1', label='line with true beta')
-    plt.title("Fitting Y~Z with/without the Instrumental Variable Z")
-    plt.legend()
-    plt.show()
 
 def LLN(mean, N):
     
